@@ -39,7 +39,7 @@ __newindex = hookmetamethod(game, "__newindex", function(t, k, v)
     -- //
     return __newindex(t, k, v)
 end)
-wait(1)
+wait(0.5)
 local Targets = {"All"}
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
@@ -73,7 +73,18 @@ local isPositionValid = function(position)
     local minX, minY, minZ = -5000, -5000, -5000
     local maxX, maxY, maxZ = 5000, 5000, 5000
     local pos = position.Position
-    return pos.X > minX and pos.X < maxX and pos.Y > minY and pos.Y < maxY and pos.Z > minZ and pos.Z < maxZ
+    return pos.X > minX and pos.X < maxX and pos.Y > minY and pos.Y < maxZ and pos.Z > minZ and pos.Z < maxZ
+end
+
+local SitCharacter = function()
+    local Character = Player.Character
+    if Character then
+        local Humanoid = Character:FindFirstChildOfClass("Humanoid")
+        if Humanoid then
+            Humanoid.Sit = true
+            task.wait(1) -- Wait for the character to sit
+        end
+    end
 end
 
 local Fling = function(TargetPlayer)
@@ -194,20 +205,21 @@ local Fling = function(TargetPlayer)
         task.wait()
     until (RootPart.Position - getgenv().OldPos.Position).Magnitude < 25
 
-    workspace.FallenPartsDestroyHeight = getgenv().FPDH
+    workspace.FallenPartsDestroyHeight = getgenv().FPDH or -5000
 end
 
+SitCharacter()
 if not Welcome then Message("Ez fling", "Enjoy!", 5) end
 getgenv().Welcome = true
-if Targets[1] then
-    for _, x in next, Targets do GetPlayer(x) end
-else
-    return
-end
+
 if AllBool then
     for _, x in next, Players:GetPlayers() do
         Fling(x)
     end
+else
+    Fling(GetPlayer(Targets[1]))
+end
+
 else
     Fling(GetPlayer(Targets[1]))
 end
