@@ -1,0 +1,136 @@
+-- anticheat bypass
+if (game.PlaceId ~= 2788229376) then
+    return
+end
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local tablefind = table.find
+local MainEvent = ReplicatedStorage.MainEvent
+
+local Flags = {
+    "CHECKER_1",
+    "TeleportDetect",
+    "OneMoreTime"
+}
+
+local __namecall
+__namecall = hookmetamethod(game, "__namecall", function(...)
+    -- // Vars
+    local args = {...}
+    local self = args[1]
+    local method = getnamecallmethod()
+
+    -- // See if the game is trying to alert the server
+    if (method == "FireServer" and self == MainEvent and tablefind(Flags, args[2])) then
+        return
+    end
+
+    -- // Anti Crash
+    if (not checkcaller() and getfenv(2).crash) then
+        -- // Set the crash function (hooking can cause stutters)
+        local fenv = getfenv(2)
+        fenv.crash = function() end
+        setfenv(2, fenv)
+    end
+
+    return __namecall(...)
+end)
+
+local __newindex
+__newindex = hookmetamethod(game, "__newindex", function(t, k, v)
+    -- // Make sure it's trying to set our humanoid's ws/jp
+    if (not checkcaller() and t:IsA("Humanoid") and (k == "WalkSpeed" or k == "JumpPower")) then
+        -- // Disallow the set
+        return
+    end
+
+    -- //
+    return __newindex(t, k, v)
+end)
+
+wait(1)
+
+
+-- BANG
+local function r15(player)
+    local character = player and player.Character
+    if character then
+        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+        return humanoidRootPart ~= nil
+    end
+    return false
+end
+
+local function getTorso(character)
+    if character then
+        local humanoid = character:FindFirstChildWhichIsA("Humanoid")
+        if humanoid then
+            local rootPart = humanoid.RootPart
+            return rootPart
+        end
+    end
+end
+
+local function getNearestPlayer()
+    local localPlayer = game.Players.LocalPlayer
+    local nearestPlayer = nil
+    local shortestDistance = math.huge
+
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if player ~= localPlayer then
+            local character = player.Character
+            if character and character:FindFirstChild("HumanoidRootPart") then
+                local distance = (localPlayer.Character.HumanoidRootPart.Position - character.HumanoidRootPart.Position).Magnitude
+                if distance < shortestDistance then
+                    shortestDistance = distance
+                    nearestPlayer = player
+                end
+            end
+        end
+    end
+
+    return nearestPlayer
+end
+
+local speaker = game.Players.LocalPlayer
+local humanoid = speaker.Character and speaker.Character:FindFirstChildWhichIsA("Humanoid")
+
+if humanoid then
+    local bangAnim = Instance.new("Animation")
+    bangAnim.AnimationId = not r15(speaker) and "rbxassetid://148840371" or "rbxassetid://5918726674"
+    local bang = humanoid:LoadAnimation(bangAnim)
+    bang:Play(0.1, 1, 3) 
+    bang:AdjustSpeed(3)
+
+    local bangDied = humanoid.Died:Connect(function()
+        bang:Stop()
+        bangAnim:Destroy()
+        bangDied:Disconnect()
+    end)
+
+    local bodyPosition = Instance.new("BodyPosition")
+    bodyPosition.MaxForce = Vector3.new(40000, 40000, 40000)
+    bodyPosition.D = 500
+    bodyPosition.P = 100000
+    bodyPosition.Parent = speaker.Character.HumanoidRootPart
+
+    spawn(function()
+        while humanoid and humanoid.Parent do
+            local nearestPlayer = getNearestPlayer()
+            if nearestPlayer then
+                local nearestCharacter = nearestPlayer.Character
+                if nearestCharacter and nearestCharacter:FindFirstChild("HumanoidRootPart") and nearestCharacter:FindFirstChild("Head") then
+                    local targetPosition = nearestCharacter.HumanoidRootPart.Position - nearestCharacter.HumanoidRootPart.CFrame.LookVector * 2
+                    bodyPosition.Position = targetPosition
+
+                    local headPosition = nearestCharacter.Head.Position
+                    local direction = (headPosition - speaker.Character.HumanoidRootPart.Position).unit
+                    local lookAt = CFrame.new(speaker.Character.HumanoidRootPart.Position, headPosition)
+                    speaker.Character.HumanoidRootPart.CFrame = CFrame.new(speaker.Character.HumanoidRootPart.Position, headPosition)
+                end
+            end
+            wait(0.05)  -- Update interval
+        end
+    end)
+end
