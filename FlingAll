@@ -71,12 +71,6 @@ local Message = function(_Title, _Text, Time)
     game:GetService("StarterGui"):SetCore("SendNotification", {Title = _Title, Text = _Text, Duration = Time})
 end
 
-local isPositionValid = function(position)
-    local minX, minY, minZ = -5000, -5000, -5000
-    local maxX, maxY, maxZ = 5000, 5000, 5000
-    local pos = position.Position
-    return pos.X > minX and pos.X < maxX and pos.Y > minY and pos.Y < maxY and pos.Z > minZ and pos.Z < maxZ
-end
 
 local Fling = function(TargetPlayer)
     local Character = Player.Character
@@ -179,11 +173,6 @@ local Fling = function(TargetPlayer)
     end
     Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
     workspace.CurrentCamera.CameraSubject = Humanoid
-
-    repeat
-        if isPositionValid(getgenv().OldPos) then
-            RootPart.CFrame = getgenv().OldPos * CFrame.new(0, .5, 0)
-            Character:SetPrimaryPartCFrame(getgenv().OldPos * CFrame.new(0, .5, 0))
         else
             break
         end
