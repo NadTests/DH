@@ -39,7 +39,9 @@ __newindex = hookmetamethod(game, "__newindex", function(t, k, v)
     -- //
     return __newindex(t, k, v)
 end)
-wait(0.5)
+
+wait(1)
+
 local Targets = {"All"}
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
@@ -82,7 +84,9 @@ local SitCharacter = function()
         local Humanoid = Character:FindFirstChildOfClass("Humanoid")
         if Humanoid then
             Humanoid.Sit = true
-            task.wait(1) -- Wait for the character to sit
+            repeat
+                task.wait()
+            until Humanoid.Sit
         end
     end
 end
@@ -203,8 +207,7 @@ local Fling = function(TargetPlayer)
             end
         end
         task.wait()
-    until (RootPart.Position - getgenv().OldPos.Position).Magnitude < 25
-
+    until (RootPart.Position - getgenv().OldPos.p).Magnitude < 25
     workspace.FallenPartsDestroyHeight = getgenv().FPDH or -5000
 end
 
@@ -217,9 +220,10 @@ if AllBool then
         Fling(x)
     end
 else
-    Fling(GetPlayer(Targets[1]))
-end
-
-else
-    Fling(GetPlayer(Targets[1]))
+    local targetPlayer = GetPlayer(Targets[1])
+    if targetPlayer then
+        Fling(targetPlayer)
+    else
+        Message("Error Occurred", "No valid target found", 5)
+    end
 end
