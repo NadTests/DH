@@ -85,7 +85,7 @@ local Message = function(_Title, _Text, Time)
     game:GetService("StarterGui"):SetCore("SendNotification", {Title = _Title, Text = _Text, Duration = Time})
 end
 
-local SkidFling = function(TargetPlayer)
+local Fling = function(TargetPlayer)
     local Character = Player.Character
     local Humanoid = Character and Character:FindFirstChildOfClass("Humanoid")
     local RootPart = Humanoid and Humanoid.RootPart
@@ -255,7 +255,7 @@ if Targets[1] then for _,x in next, Targets do GetPlayer(x) end else return end
 
 if AllBool then
     for _,x in next, Players:GetPlayers() do
-        SkidFling(x)
+        Fling(x)
     end
 end
 
@@ -264,7 +264,7 @@ for _,x in next, Targets do
         if GetPlayer(x).UserId ~= 513087640 then
             local TPlayer = GetPlayer(x)
             if TPlayer then
-                SkidFling(TPlayer)
+                Fling(TPlayer)
             end
         else
             Message("Error Occurred", "This user is whitelisted! (Owner)", 5)
