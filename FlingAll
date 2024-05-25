@@ -97,19 +97,24 @@ local Fling = function(TargetPlayer)
     local Accessory
     local Handle
 
-    if TCharacter:FindFirstChildOfClass("Humanoid") then
+    if TCharacter and TCharacter:FindFirstChildOfClass("Humanoid") then
         THumanoid = TCharacter:FindFirstChildOfClass("Humanoid")
+        if THumanoid and THumanoid.RootPart then
+            TRootPart = THumanoid.RootPart
+        end
+        if TCharacter:FindFirstChild("Head") then
+            THead = TCharacter.Head
+        end
+    elseif TCharacter and TCharacter:IsA("Model") then
+        if TCharacter:FindFirstChild("Head") then
+            THead = TCharacter.Head
+        end
     end
-    if THumanoid and THumanoid.RootPart then
-        TRootPart = THumanoid.RootPart
-    end
-    if TCharacter:FindFirstChild("Head") then
-        THead = TCharacter.Head
-    end
+
     if TCharacter:FindFirstChildOfClass("Accessory") then
         Accessory = TCharacter:FindFirstChildOfClass("Accessory")
     end
-    if Accessoy and Accessory:FindFirstChild("Handle") then
+    if Accessory and Accessory:FindFirstChild("Handle") then
         Handle = Accessory.Handle
     end
 
@@ -130,6 +135,8 @@ local Fling = function(TargetPlayer)
         if not TCharacter:FindFirstChildWhichIsA("BasePart") then
             return
         end
+    end
+end
         
         local FPos = function(BasePart, Pos, Ang)
             RootPart.CFrame = CFrame.new(BasePart.Position) * Pos * Ang
