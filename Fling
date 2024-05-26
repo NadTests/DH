@@ -251,5 +251,5 @@ while true do
             Message("Error Occurred", "Username Invalid", 5)
         end
     end
-    task.wait(5) -- Add a delay to prevent the script from running too fast
+    task.wait(1) -- Add a delay to prevent the script from running too fast
 end
