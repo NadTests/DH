@@ -41,7 +41,7 @@ end)
 
 setreadonly(grm, true)
 
-wait(1)
+wait(0.3)
 
 local Targets = {"All"}
 
